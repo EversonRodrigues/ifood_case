@@ -1,12 +1,46 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+from matplotlib.ticker import PercentFormatter
 import pandas as pd
 import seaborn as sns
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
+import os
+import numpy as np
+
+os.environ["OMP_NUM_THREADS"] = "9"
 
 def graficos_elbow_silhouette(x, random_state=42, intervalo_k=(2,11)):
+    """
+    Gera visualizações dos métodos do Cotovelo (Elbow) e Silhouette para determinar o número ideal de clusters (K)
+    em uma clusterização usando KMeans. A função também realiza a detecção automática do "cotovelo" com base
+    na maior distância perpendicular entre os pontos e a linha entre o primeiro e o último ponto de inércia.
+
+    Parâmetros
+    ----------
+    x : array-like or DataFrame
+        Matriz de dados numéricos para aplicar o KMeans.
+
+    random_state : int, opcional (default=42)
+        Semente para garantir reprodutibilidade dos resultados do KMeans.
+
+    intervalo_k : tuple (int, int), opcional (default=(2, 11))
+        Intervalo de valores de K a serem testados (início incluso, fim exclusivo).
+        Exemplo: (2, 11) testará de K=2 a K=10.
+
+    Retorno
+    -------
+    None
+        Apenas exibe dois gráficos: um para o método do cotovelo com detecção automática
+        e outro para os scores de silhouette. Cada gráfico destaca visualmente o melhor K identificado.
+
+    Notas
+    -----
+    - O método do cotovelo utiliza a distância perpendicular de cada ponto à linha entre extremos da curva de inércia.
+    - O melhor K pelo silhouette é o valor que maximiza o coeficiente de silhouette.
+    - Ideal para experimentação visual durante projetos de clusterização com KMeans.
+    """
     
     fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(15, 5), tight_layout=True)
     
@@ -311,3 +345,186 @@ def pairplot(
         corner=corner,
         palette=palette,
     )
+
+
+def plot_columns_percent_by_cluster(
+    dataframe,
+    columns,
+    rows_cols=(2, 3),
+    figsize=(15, 8),
+    column_cluster="cluster",
+    palette="tab10",
+):
+    """
+    Gera gráficos de barras empilhadas com percentual de ocorrência por cluster para variáveis categóricas.
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+        DataFrame contendo os dados.
+    columns : List[str]
+        Lista com nomes das colunas categóricas a serem visualizadas.
+    rows_cols : tuple, optional
+        (linhas, colunas) no grid de subplots. Default = (2, 3)
+    figsize : tuple, optional
+        Tamanho da figura matplotlib. Default = (15, 8)
+    column_cluster : str, optional
+        Nome da coluna de cluster (usualmente 'cluster'). Default = "cluster"
+    """
+    fig, axs = plt.subplots(
+        nrows=rows_cols[0], ncols=rows_cols[1], figsize=figsize, sharey=True
+    )
+
+    axs = axs.flatten() if isinstance(axs, np.ndarray) else np.array([axs])
+
+    for ax, col in zip(axs, columns):
+        h = sns.histplot(
+            x=column_cluster,
+            hue=col,
+            data=dataframe,
+            ax=ax,
+            multiple="fill",
+            stat="percent",
+            discrete=True,
+            shrink=0.8,
+        )
+
+        # Ocultar spines
+        h.spines["top"].set_visible(False)
+        h.spines["right"].set_visible(False)
+        h.spines["left"].set_visible(False)
+
+        # Formatadores e ajustes visuais
+        h.set_title(col, fontsize=12, weight="bold")
+        n_clusters = dataframe[column_cluster].nunique()
+        h.set_xticks(range(n_clusters))
+        h.yaxis.set_major_formatter(PercentFormatter(1))
+        h.set_ylabel("")
+        h.tick_params(axis="both", which="both", length=0)
+
+        # Inserir rótulos percentuais nas barras
+        for bars in h.containers:
+            h.bar_label(
+                bars,
+                label_type="center",
+                labels=[f"{b.get_height():.1%}" for b in bars],
+                color="white",
+                weight="bold",
+                fontsize=10,
+            )
+
+        # Remover contorno das barras
+        for bar in h.patches:
+            bar.set_linewidth(0)
+
+    # Ajuste de espaçamento entre subplots
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    
+    plt.show()
+
+def plot_columns_percent_hue_cluster(
+    dataframe,
+    columns,
+    rows_cols=(2, 3),
+    figsize=(15, 8),
+    column_cluster="cluster",
+    palette="tab10",
+    mostrar_legenda=False,
+):
+    """
+    Gera gráficos de barras empilhadas com percentual de categorias, com cor por cluster.
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+        DataFrame contendo os dados.
+    columns : List[str]
+        Lista de colunas categóricas a serem visualizadas.
+    rows_cols : tuple, optional
+        Grid de subplots (linhas, colunas). Default = (2, 3)
+    figsize : tuple, optional
+        Tamanho da figura. Default = (15, 8)
+    column_cluster : str, optional
+        Nome da coluna com os clusters. Default = "cluster"
+    palette : str, optional
+        Paleta de cores. Default = "tab10"
+    mostrar_legenda : bool, optional
+        Se True, exibe legenda única ao final. Se False, suprime legenda e mantém eixo X. Default = True.
+    """
+    fig, axs = plt.subplots(
+        nrows=rows_cols[0], ncols=rows_cols[1], figsize=figsize, sharey=True
+    )
+
+    axs = axs.flatten() if isinstance(axs, np.ndarray) else np.array([axs])
+    legend_handles = None
+    legend_labels = None
+
+    for i, (ax, col) in enumerate(zip(axs, columns)):
+        h = sns.histplot(
+            x=col,
+            hue=column_cluster,
+            data=dataframe,
+            ax=ax,
+            multiple="fill",
+            stat="percent",
+            discrete=True,
+            shrink=0.8,
+            palette=palette,
+        )
+
+        if dataframe[col].dtype != "object":
+            h.set_xticks(range(dataframe[col].nunique()))
+
+        h.yaxis.set_major_formatter(PercentFormatter(1))
+        h.set_ylabel("")
+        h.tick_params(axis="both", which="both", length=0)
+
+        # Remover bordas visuais
+        h.spines["top"].set_visible(False)
+        h.spines["right"].set_visible(False)
+        h.spines["left"].set_visible(False)
+
+        h.set_title(col.title(), fontsize=12, weight="bold")
+
+        # Adicionar rótulos de porcentagem nas barras
+        for bars in h.containers:
+            h.bar_label(
+                bars,
+                label_type="center",
+                labels=[f"{b.get_height():.1%}" for b in bars],
+                color="white",
+                weight="bold",
+                fontsize=10,
+            )
+
+        for bar in h.patches:
+            bar.set_linewidth(0)
+
+        # Legenda só se for solicitado
+        if mostrar_legenda:
+            if h.get_legend():
+                legend = h.get_legend()
+                legend_handles = legend.legend_handles
+                legend_labels = [text.get_text() for text in legend.get_texts()]
+                legend.remove()
+        else:
+            ax.set_xticks([])
+            ax.set_xlabel("")
+            if h.get_legend():
+                h.get_legend().remove()
+
+    # Adicionar legenda fora do grid
+    if mostrar_legenda and legend_handles and legend_labels:
+        fig.legend(
+            handles=legend_handles,
+            labels=legend_labels,
+            loc="lower center",
+            bbox_to_anchor=(0.5, -0.05),
+            ncols=dataframe[column_cluster].nunique(),
+            title="Clusters",
+            frameon=False,
+        )
+
+    plt.subplots_adjust(hspace=0.3, wspace=0.3, bottom=0.2)
+    
+    plt.show()
