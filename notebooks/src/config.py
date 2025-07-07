@@ -11,6 +11,7 @@ if not PASTA_DADOS.exists():
 # Caminhos dos arquivos
 DADOS_ORIGINAIS = PASTA_DADOS / "ml_project1_data.csv"
 DADOS_DROP = PASTA_DADOS / "customers_new_features_and_drop.csv"
+DADOS_CLUSTERED = PASTA_DADOS / "custumers_clustered.csv"
 DADOS_TRATADOS = PASTA_DADOS / "ml_project1_data.parquet"
 
 # Verifica se o arquivo original existe

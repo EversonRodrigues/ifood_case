@@ -94,46 +94,92 @@ def graficos_elbow_silhouette(x, random_state=42, intervalo_k=(2,11)):
     axs[1].set_title("Silhouette Method")
     
     plt.show()
-
-def visualizar_clusters(
+    
+def plot_clusters_2D(
     dataframe,
-    colunas,
-    quantidade_cores,
+    columns,
+    n_colors,
     centroids,
-    mostrar_centroids=True, 
-    mostrar_pontos=False,
-    coluna_cluster=None,
+    Show_centroids=True, 
+    Show_points=False,
+    column_clusters=None,
 ):
+    """
+    Plota a visualização 2D de agrupamentos (clusters) com base em duas variáveis.
 
+    A função permite visualizar os dados reduzidos em 2 dimensões (como via PCA ou TSNE),
+    destacando os centróides dos clusters e/ou os pontos coloridos por grupo.
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+        DataFrame contendo os dados a serem plotados.
+
+    columns : list of str
+        Lista com exatamente dois nomes de colunas a serem usadas nos eixos X e Y.
+
+    n_colors : int
+        Número de clusters (K) utilizados para definir o mapa de cores.
+
+    centroids : array-like
+        Lista ou array com as coordenadas dos centróides. Deve ter shape (K, 2).
+
+    Show_centroids : bool, optional (default=True)
+        Se True, exibe os centróides no gráfico.
+
+    Show_points : bool, optional (default=False)
+        Se True, plota os pontos coloridos por cluster.
+
+    column_clusters : array-like, optional
+        Coluna com os rótulos de cluster de cada ponto. Obrigatório se Show_points=True.
+
+    Returns
+    -------
+    None
+        Apenas exibe o gráfico com centróides e/ou pontos dos clusters.
+
+    Notes
+    -----
+    - Os dados devem estar previamente reduzidos a duas dimensões (ex: PCA, TSNE).
+    - A função não realiza clusterização, apenas visualiza resultados.
+    - Ideal para interpretar a separação e coerência dos grupos encontrados.
+    """
+
+    # Cria uma figura e um eixo para plotagem
     fig = plt.figure()
-    
-    ax = fig.add_subplot(111, projection="3d")
-    
-    cores = plt.cm.tab10.colors[:quantidade_cores]
-    cores = ListedColormap(cores)
-    
-    x = dataframe[colunas[0]]
-    y = dataframe[colunas[1]]
-    z = dataframe[colunas[2]]
-    
-    ligar_centroids = mostrar_centroids
-    ligar_pontos = mostrar_pontos
-    
+    ax = fig.add_subplot(111)
+
+    # Define paleta de cores com base no número de clusters
+    colors = plt.cm.tab10.colors[:n_colors]
+    colors = ListedColormap(colors)  # ⚠️ 'cores' estava indefinido, substituído por colors
+
+    # Extrai colunas selecionadas para plotar no eixo X e Y
+    x = dataframe[columns[0]]
+    y = dataframe[columns[1]]
+
+    # Corrigido: variáveis booleanas já estão como argumentos
     for i, centroid in enumerate(centroids):
-        if ligar_centroids: 
+        if Show_centroids:
             ax.scatter(*centroid, s=500, alpha=0.5)
-            ax.text(*centroid, f"{i}", fontsize=20, horizontalalignment="center", verticalalignment="center")
-    
-        if ligar_pontos:
-            s = ax.scatter(x, y, z, c=coluna_cluster, cmap=cores)
-            ax.legend(*s.legend_elements(), bbox_to_anchor=(1.3, 1))
-    
-    ax.set_xlabel(colunas[0])
-    ax.set_ylabel(colunas[1])
-    ax.set_zlabel(colunas[2])
+            ax.text(
+                *centroid,
+                f"{i}",
+                fontsize=20,
+                ha="center",
+                va="center"
+            )
+
+    if Show_points and column_clusters is not None:
+        s = ax.scatter(x, y, c=column_clusters, cmap=colors)
+        ax.legend(*s.legend_elements(), bbox_to_anchor=(1.3, 1))
+
+    ax.set_xlabel(columns[0])  # Corrigido: 'colunas' → 'columns'
+    ax.set_ylabel(columns[1])
     ax.set_title("Clusters")
-    
+
     plt.show()
+
+
 
 def inspect_outliers(dataframe, column, whisker_width=1.5):
     """
