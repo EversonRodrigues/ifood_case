@@ -82,9 +82,9 @@ O pipeline completo foi estruturado de forma modular e reutilizável usando boas
 
 ## 📢 Sobre Mim
 
-👨‍💻 **Everson Rodrigues***
-🎓 Formado em Sistemas de Informação e pós-graduado em Análise de Dados e Inteligência Artificial
-💼 Em transição de carreira com foco em Ciência de Dados aplicada a problemas reais de negócio
-📚 Apaixonado por tecnologia, dados e aprendizado contínuo — sempre explorando novas ferramentas e práticas da área 
-🔍 Em busca da primeira oportunidade na área de dados
+👨‍💻 **Everson Rodrigues**
+🎓 Formado em Sistemas de Informação e pós-graduado em Análise de Dados e Inteligência Artificial.
+💼 Em transição de carreira com foco em Ciência de Dados aplicada a problemas reais de negócio.
+📚 Apaixonado por tecnologia, dados e aprendizado contínuo — sempre explorando novas ferramentas e práticas da área. 
+🔍 Em busca da primeira oportunidade na área de dados.
 🌐 [LinkedIn](https://www.linkedin.com/in/eversonrodrigues10)
