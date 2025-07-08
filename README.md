@@ -1,3 +1,6 @@
+[![author](https://img.shields.io/badge/Author-Everson&nbsp;Rodrigues-red.svg)](https://www.linkedin.com/in/eversonrodrigues10/)
+[![](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+
 # 🧠 Segmentação e Classificação de Clientes iFood com Ciência de Dados
 
 Este projeto simula um cenário de negócio real onde a empresa precisa entender melhor o perfil de seus clientes para direcionar campanhas de marketing de forma eficiente.
@@ -13,6 +16,8 @@ Foram aplicadas técnicas de:
 O pipeline completo foi estruturado de forma modular e reutilizável usando boas práticas de engenharia com `Pipeline`, `ColumnTransformer`, reamostragem (`RandomUnderSampler`), validação estratificada e persistência de modelos.
 
 🔗 Baseado no dataset do case de seleção da equipe de dados do [iFood](https://github.com/ifood/ifood-data-business-analyst-test).
+
+![pairplot](reports/images/pairplot.png)
 
 ---
 
